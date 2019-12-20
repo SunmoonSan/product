@@ -44,6 +44,8 @@ func main() {
 	product.Register(ctx, productService)
 	product.Handle(new(controllers.ProductController))
 
+	orderRepository := repositories.NewOrderManage
+
 	//6.启动服务
 	app.Run(
 		iris.Addr("localhost:8080"),

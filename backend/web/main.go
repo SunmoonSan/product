@@ -44,7 +44,12 @@ func main() {
 	product.Register(ctx, productService)
 	product.Handle(new(controllers.ProductController))
 
-	orderRepository := repositories.NewOrderManage
+	orderRepository := repositories.NewOrderManagerRepository("product", db)
+	orderService := services.NewOrderService(orderRepository)
+	orderParty := app.Party("/order")
+	order := mvc.New(orderParty)
+	order.Register(ctx, orderService)
+	order.Handle(new(controllers.OrderController))
 
 	//6.启动服务
 	app.Run(

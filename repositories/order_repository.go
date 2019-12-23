@@ -41,7 +41,7 @@ func (o *OrderManagerRepository) Conn() error {
 }
 
 func (o *OrderManagerRepository) Insert(order *datamodels.Order) (productID int64, err error) {
-	if err = o.Conn(); err != nil {
+	if err = o.Conn(); err != nil  {
 		return
 	}
 	sql := "INSERT " + o.table + " set userID=?, productID=?, orderStatus=?"

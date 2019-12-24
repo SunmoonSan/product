@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/mvc"
 	"product/services"
@@ -13,6 +14,7 @@ type OrderController struct {
 
 func (o *OrderController) Get() mvc.View {
 	orderArray, err := o.OrderService.GetAllOrderInfo()
+	fmt.Println("err...")
 	if err != nil {
 		o.Ctx.Application().Logger().Debug("查询订单信息失败")
 	}

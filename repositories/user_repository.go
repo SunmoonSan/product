@@ -5,6 +5,7 @@ import (
 	"errors"
 	"product/common"
 	"product/datamodels"
+	"strconv"
 )
 
 type IUserRepository interface {
@@ -62,5 +63,33 @@ func (u *UserManagerRepository) Select(userName string) (user *datamodels.User, 
 }
 
 func (u *UserManagerRepository) Insert(user *datamodels.User) (userId int64, err error) {
-	panic("implement me")
+	if err = u.Conn(); err != nil {
+		return
+	}
+	sql := "INSERT " + u.table + " SET nickname=?, userName=?, passWord=?"
+	stmt, errStmt := u.mysqlConn.Prepare(sql)
+	if errStmt != nil {
+		return userId, errStmt
+	}
+	result, errResult := stmt.Exec(user.Nickname, user.UserName, user.HashPassword)
+	if errResult != nil {
+		return userId, errResult
+	}
+	return result.LastInsertId()
+}
+
+func (u UserManagerRepository) SelectByID(userId int64) (user *datamodels.User, err error) {
+	sql := "Select * from " + u.table + " where ID=" + strconv.FormatInt(userId, 10)
+	row, errRow := u.mysqlConn.Query(sql)
+	defer row.Close()
+	if errRow != nil {
+		return &datamodels.User{}, errRow
+	}
+	result := common.GetResultRow(row)
+	if len(result) == 0 {
+		return &datamodels.User{}, errors.New("用户不存在!")
+	}
+	user = &datamodels.User{}
+	common.DataToStructByTagSql(result, user)
+	return
 }

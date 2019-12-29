@@ -3,9 +3,12 @@ package main
 import (
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/context"
-	"github.com/kataras/iris/sessions"
+	"github.com/kataras/iris/mvc"
 	"product/common"
-	"time"
+	"product/fronted/middleware"
+	"product/fronted/web/controllers"
+	"product/repositories"
+	"product/services"
 )
 
 func main() {
@@ -25,12 +28,34 @@ func main() {
 
 	}
 
-	sess := sessions.New(sessions.Config{
-		Cookie:                      "AdminCookie",
-		Expires:                     600 * time.Minute,
-	})
+	//sess := sessions.New(sessions.Config{
+	//	Cookie:                      "AdminCookie",
+	//	Expires:                     600 * time.Minute,
+	//})
 
-	//ctx, cancel := context.
+	ctx, cancel := context
+
+	user := repositories.NewUserRepository("user", db)
+	userService := services.NewService(user)
+	userPro := mvc.New(app.Party("/user"))
+	userPro.Register(userService, ctx,)
+	userPro.Handle(new(controllers.UserController))
+
+	// 注册product控制器
+	product := repositories.NewProductManager("product", db)
+	productService := services.NewProductService(product)
+	order := repositories.NewOrderManagerRepository("order", db)
+	orderService := services.NewOrderService(order)
+	proProduct := app.Party("/product")
+	pro := mvc.New(proProduct)
+	proProduct.Use(middleware.AuthConProduct)
+	pro.Register(productService, orderService)
+	pro.Handle(new(controllers.ProductController))
+
+	app.Run(
+		iris.Addr("0.0.0.0:8082"),
+		iris.WithoutVersionChecker,
+		iris.WithoutServerError(iris.ErrServerClosed),
+		iris.WithOptimizations,
+	)
 }
-
-

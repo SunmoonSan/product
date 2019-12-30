@@ -32,7 +32,7 @@ func NewProductManager(table string, db *sql.DB) IProduct {
 }
 
 func (p *ProductManager) Conn() (err error) {
-
+	return nil
 }
 
 // 插入

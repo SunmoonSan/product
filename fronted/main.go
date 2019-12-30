@@ -1,14 +1,16 @@
 package main
 
 import (
+	"context"
 	"github.com/kataras/iris"
-	"github.com/kataras/iris/context"
 	"github.com/kataras/iris/mvc"
+	"github.com/kataras/iris/sessions"
 	"product/common"
 	"product/fronted/middleware"
 	"product/fronted/web/controllers"
 	"product/repositories"
 	"product/services"
+	"time"
 )
 
 func main() {
@@ -18,7 +20,7 @@ func main() {
 	app.RegisterView(tmplate)
 	app.StaticWeb("/public", "./fronted/web/public")
 	app.StaticWeb("/html", "./fronted/web/htmlProductShow")
-	app.OnAnyErrorCode(func(ctx context.Context) {
+	app.OnAnyErrorCode(func(ctx iris.Context) {
 		ctx.ViewData("message", ctx.Values().GetStringDefault("message", "访问的页面出错!"))
 		ctx.ViewLayout("")
 		ctx.View("shared/error.html")
@@ -28,17 +30,18 @@ func main() {
 
 	}
 
-	//sess := sessions.New(sessions.Config{
-	//	Cookie:                      "AdminCookie",
-	//	Expires:                     600 * time.Minute,
-	//})
+	sess := sessions.New(sessions.Config{
+		Cookie:  "AdminCookie",
+		Expires: 600 * time.Minute,
+	})
 
-	ctx, cancel := context
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	user := repositories.NewUserRepository("user", db)
 	userService := services.NewService(user)
 	userPro := mvc.New(app.Party("/user"))
-	userPro.Register(userService, ctx,)
+	userPro.Register(userService, ctx, sess)
 	userPro.Handle(new(controllers.UserController))
 
 	// 注册product控制器

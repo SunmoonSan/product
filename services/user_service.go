@@ -2,7 +2,7 @@ package services
 
 import (
 	"errors"
-	"goland.org/x/crypto/bcrypt"
+	"golang.org/x/crypto/bcrypt"
 	"product/datamodels"
 	"product/repositories"
 )

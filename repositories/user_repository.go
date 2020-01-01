@@ -54,7 +54,7 @@ func (u *UserManagerRepository) Select(userName string) (user *datamodels.User, 
 		return &datamodels.User{}, errRows
 	}
 	result := common.GetResultRow(rows)
-	if len(result) == 0 {
+	if len(result) == 0   {
 		return &datamodels.User{}, errors.New("用户不存在")
 	}
 	user = &datamodels.User{}

@@ -4,13 +4,11 @@ import (
 	"context"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/mvc"
-	"github.com/kataras/iris/sessions"
 	"product/common"
 	"product/fronted/middleware"
 	"product/fronted/web/controllers"
 	"product/repositories"
 	"product/services"
-	"time"
 )
 
 func main() {
@@ -30,10 +28,10 @@ func main() {
 
 	}
 
-	sess := sessions.New(sessions.Config{
-		Cookie:  "AdminCookie",
-		Expires: 600 * time.Minute,
-	})
+	//sess := sessions.New(sessions.Config{
+	//	Cookie:  "AdminCookie",
+	//	Expires: 600 * time.Minute,
+	//})
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -41,7 +39,7 @@ func main() {
 	user := repositories.NewUserRepository("user", db)
 	userService := services.NewService(user)
 	userPro := mvc.New(app.Party("/user"))
-	userPro.Register(userService, ctx, sess)
+	userPro.Register(userService, ctx)
 	userPro.Handle(new(controllers.UserController))
 
 	// 注册product控制器
